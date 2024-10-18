@@ -20,9 +20,19 @@ interface Post {
 }
 
 async function getPosts(): Promise<Post[]> {
-  const res = await fetch("http://localhost:3000/api/posts", {
+  const apiUrl =
+    process.env.NODE_ENV === "production"
+      ? process.env.NEXT_PUBLIC_PROD_API_URL // Make sure to set this in Vercel
+      : "http://localhost:3000";
+
+  const res = await fetch(`${apiUrl}/api/posts`, {
     next: { revalidate: 60 },
   });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch posts");
+  }
+
   return res.json();
 }
 
